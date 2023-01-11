@@ -22,11 +22,11 @@ posts = None
 idx_start = 0
 idx_end = 4
 
-prefixFile = open(prefix.json, 'r')
+prefixFile = open("prefix.json", 'r')
 prefix = json.load(prefixFile)
 prefixFile.close()
 
-blacklistFile = open(blacklist.json, 'r')
+blacklistFile = open("blacklist.json", 'r')
 blacklist = json.load(blacklistFile)
 blacklistFile.close()
 
@@ -164,7 +164,7 @@ async def on_message(message):
         else:
             return
 
-        writer = open(prefix.json, 'w')
+        writer = open("prefix.json", 'w')
         writer.write(json.dumps(prefix, indent=4))
         writer.close()
         return
