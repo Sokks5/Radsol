@@ -116,6 +116,8 @@ async def on_message(message):
         writer.write(json.dumps(prefix, indent=4))
         writer.close()
 
+    pre = prefix[message.guild.id]
+
     # Ignore message if it doesn't start with the prefix
     if (not message.content.startswith(prefix[message.guild.id])):
         return
@@ -123,7 +125,7 @@ async def on_message(message):
     strings = message.content.split()
 
     # e621 Command
-    if strings[0] == prefix + 'e621':
+    if strings[0] == pre + 'e621':
         if message.channel.nsfw == False:
             await message.channel.send("Sorry kiddo, no e621 allowed!")
             return
@@ -146,13 +148,13 @@ async def on_message(message):
         return
 
     # Echo command
-    if strings[0] == prefix + 'echo':
+    if strings[0] == pre + 'echo':
         strings.pop(0)
         await message.channel.send("\"{}\"".format(" ".join(strings)))
         return
 
     # Change prefix
-    if strings[0] == prefix + 'prefix':
+    if strings[0] == pre + 'prefix':
         strings.pop(0)
 
         if (len(strings) == 1):
