@@ -110,7 +110,7 @@ async def on_message(message):
     # Default prefix is $
     global prefix
 
-    if (not prefix.has_key(message.guild.id)):
+    if (message.guild.id not in prefix.keys()):
         prefix[message.guild.id] = '$'
         writer = open(prefix.json, 'w')
         writer.write(json.dumps(prefix, indent=4))
