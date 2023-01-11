@@ -112,7 +112,7 @@ async def on_message(message):
 
     if (message.guild.id not in prefix.keys()):
         prefix[message.guild.id] = '$'
-        writer = open(prefix.json, 'w')
+        writer = open("prefix.json", 'w')
         writer.write(json.dumps(prefix, indent=4))
         writer.close()
 
