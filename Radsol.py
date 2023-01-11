@@ -132,7 +132,7 @@ async def on_message(message):
 
         strings.pop(0)
 
-        matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|(|)|0-9]", message.content)
+        matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|(|)|0-9]", " ".join(strings))
         for word in matches:
             if len(word) > 0:
                 await message.channel.send("sneaky fucker: [a-zA-Z|\-|_| |:|<|>|0-9]")
