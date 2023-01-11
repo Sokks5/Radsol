@@ -96,6 +96,7 @@ async def sendEmbed(query, message):
 
 @client.event
 async def on_message(message):
+    global prefix
     if message.author == client.user:
         return
 
