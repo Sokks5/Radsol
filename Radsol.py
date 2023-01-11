@@ -22,6 +22,8 @@ posts = None
 idx_start = 0
 idx_end = 4
 
+prefix = '$'
+
 async def getQuery(query, message):
     global posts
     global idx_start
@@ -100,7 +102,7 @@ async def on_message(message):
     matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|(|)|0-9]", message.content)
     strings = message.content.split()
 
-    if strings[0] == 'e621':
+    if strings[0] == prefix + 'e621':
         if message.channel.nsfw == False:
             await message.channel.send("Sorry kiddo, no e621 allowed!")
             return
@@ -121,9 +123,22 @@ async def on_message(message):
         time.sleep(1)
         return
 
-    if strings[0] == 'echo':
+    if strings[0] == prefix + 'echo':
         strings.pop(0)
         await message.channel.send("\"{}\"".format(" ".join(strings)))
         return
+
+    if strings[0] == prefix + 'prefix':
+        strings.pop(0)
+        if (len(strings) == 1):
+            prefix = strings[0]
+            await message.channel.send("New prefix: " + prefix)
+            
+        elif (len(strings) == 0):
+            prefix = ''
+            await message.channel.send("Removed prefix")
+
+        return
+
 
 client.run(token)
