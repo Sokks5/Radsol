@@ -22,12 +22,19 @@ posts = None
 idx_start = 0
 idx_end = 4
 
-prefix = '$'
+prefixFile = open(prefix.json, 'r')
+prefix = json.load(prefixFile)
+prefixFile.close()
+
+blacklistFile = open(blacklist.json, 'r')
+blacklist = json.load(blacklistFile)
+blacklistFile.close()
 
 async def getQuery(query, message):
     global posts
     global idx_start
     global idx_end
+    global blacklist
 
     # Check for range
     for word in query:
@@ -96,24 +103,38 @@ async def sendEmbed(query, message):
 
 @client.event
 async def on_message(message):
-    global prefix
+    # Ignore messages from Radsol
     if message.author == client.user:
         return
 
-    matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|(|)|0-9]", message.content)
+    # Default prefix is $
+    global prefix
+
+    if (not prefix.has_key(message.guild.id)):
+        prefix[message.guild.id] = '$'
+        writer = open(prefix.json, 'w')
+        writer.write(json.dumps(prefix, indent=4))
+        writer.close()
+
+    # Ignore message if it doesn't start with the prefix
+    if (not message.content.startswith(prefix[message.guild.id])):
+        return
+
     strings = message.content.split()
 
+    # e621 Command
     if strings[0] == prefix + 'e621':
         if message.channel.nsfw == False:
             await message.channel.send("Sorry kiddo, no e621 allowed!")
             return
 
+        strings.pop(0)
+
+        matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|(|)|0-9]", message.content)
         for word in matches:
             if len(word) > 0:
                 await message.channel.send("sneaky fucker: [a-zA-Z|\-|_| |:|<|>|0-9]")
                 return
-
-        strings.pop(0)
 
         if (len(strings) == 0 or strings[0] == 'help'):
             await message.channel.send("Usage: 'e621 [Tags] [Range]' where [Range] is a single number (n = posts 1 to n) or two numbers separated by a dash (a-b = posts a to b).")
@@ -124,21 +145,28 @@ async def on_message(message):
         time.sleep(1)
         return
 
+    # Echo command
     if strings[0] == prefix + 'echo':
         strings.pop(0)
         await message.channel.send("\"{}\"".format(" ".join(strings)))
         return
 
+    # Change prefix
     if strings[0] == prefix + 'prefix':
         strings.pop(0)
-        if (len(strings) == 1):
-            prefix = strings[0]
-            await message.channel.send("New prefix: " + prefix)
-            
-        elif (len(strings) == 0):
-            prefix = ''
-            await message.channel.send("Removed prefix")
 
+        if (len(strings) == 1):
+            prefix[message.guild.id] = strings[0]
+            await message.channel.send("New prefix: " + prefix)
+        elif (len(strings) == 0):
+            prefix[message.guild.id] = ''
+            await message.channel.send("Removed prefix")
+        else:
+            return
+
+        writer = open(prefix.json, 'w')
+        writer.write(json.dumps(prefix, indent=4))
+        writer.close()
         return
 
 
