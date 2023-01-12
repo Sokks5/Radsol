@@ -134,13 +134,13 @@ async def on_message(message):
     global prefix
     global blacklist
 
-    if (message.guild.id not in prefix.keys()):
+    if (message.guild.id not in prefix):
         prefix[message.guild.id] = '$'
         writer = open("prefix.json", 'w')
         writer.write(json.dumps(prefix, indent=4))
         writer.close()
 
-    if (message.guild.id not in blacklist.keys()):
+    if (message.guild.id not in blacklist):
         blacklist[message.guild.id] = []
         writer = open("blacklist.json", 'w')
         writer.write(json.dumps(blacklist, indent=4))
