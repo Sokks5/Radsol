@@ -39,9 +39,7 @@ async def getQuery(query, message):
     # Check for range and blacklist tags
     for word in query:
         if (word in blacklist):
-            await message.channel.send("{} is blacklisted.".format(word))
-            posts = None
-            return None
+            query.remove(word)
 
         if (re.search("[a-zA-Z|_| |=|~|*|:|<|>|\(|\)|\+]", word) == None):
             nums = word.split('-')
