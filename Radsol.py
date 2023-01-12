@@ -216,7 +216,7 @@ async def on_message(message):
             await message.channel.send("Current blacklist: " + ", ".join(blacklist[message.guild.id]))
             await message.channel.send("To add/remove tags, follow the command with +tag or -tag")
         else:
-            editBlacklist(strings)
+            editBlacklist(strings, message.guild.id)
 
 
 client.run(token)
