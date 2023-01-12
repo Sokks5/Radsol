@@ -149,7 +149,6 @@ async def on_message(message):
         writer.close()
 
     pre = prefix[message.guild.id]
-    blk_list = blacklist[message.guild.id]
 
     # Ignore message if it doesn't start with the prefix
     if (not message.content.startswith(prefix[message.guild.id])):
@@ -214,7 +213,7 @@ async def on_message(message):
                 return
 
         if (len(strings) == 0):
-            await message.channel.send("Current blacklist: " + ", ".join(blk_list))
+            await message.channel.send("Current blacklist: " + ", ".join(blacklist[message.guild.id]))
             await message.channel.send("To add/remove tags, follow the command with +tag or -tag")
         else:
             editBlacklist(strings)
