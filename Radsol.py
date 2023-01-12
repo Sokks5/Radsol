@@ -1,5 +1,6 @@
 import discord
 import requests
+import random
 import time
 import re
 import json
@@ -35,6 +36,12 @@ async def getQuery(query, message):
     global idx_start
     global idx_end
     global blacklist
+
+    randomize = False
+
+    if "shuffle" in query:
+        randomize = True
+        query.remove("shuffle")
 
     # Check for range and blacklist tags
     for word in query:
@@ -72,6 +79,9 @@ async def getQuery(query, message):
         return None
 
     posts = response.json()["posts"]
+
+    if randomize == True:
+        random.shuffle(posts)
 
     return query
 
