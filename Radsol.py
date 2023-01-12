@@ -36,9 +36,14 @@ async def getQuery(query, message):
     global idx_end
     global blacklist
 
-    # Check for range
+    # Check for range and blacklist tags
     for word in query:
-        if (re.search("[a-zA-Z|_| |:|*|~|=|(|)|<|>]", word) == None):
+        if (word in blacklist):
+            await message.channel.send("{} is blacklisted.".format(word))
+            posts = None
+            return None
+
+        if (re.search("[a-zA-Z|_| |=|~|*|:|<|>|\(|\)|\+]", word) == None):
             nums = word.split('-')
 
             if ('-' in word and (len(nums[1]) == 0 or len(nums[0]) == 0)):
@@ -52,8 +57,11 @@ async def getQuery(query, message):
             else:
                 idx_start = 0
                 idx_end = 4
-            query.pop(query.index(word))
+            query.remove(word)
             break
+
+    for black in blacklist:
+        query.append('-' + black)
 
     queryURL = url + ".json?tags=" + "+".join(query)
     response = requests.get(queryURL, headers=headers)
@@ -62,7 +70,7 @@ async def getQuery(query, message):
     if code != 200:
         await message.channel.send("e621 [{}]: {}".format(code, response.json()["message"]))
         posts = None
-        return
+        return None
 
     posts = response.json()["posts"]
 
@@ -70,7 +78,7 @@ async def getQuery(query, message):
 
 async def sendEmbed(query, message):
     if (posts == None):
-        return
+        return None
 
     if (len(posts) == 0):
         await message.channel.send("No posts on e6, sorry!")
@@ -101,14 +109,32 @@ async def sendEmbed(query, message):
         await message.channel.send(content=None, embed=emb)
         time.sleep(0.5)
 
+def editBlacklist(tags, key):
+    global blacklist
+
+    for tag in tags:
+        if len(tag) == 1 or (tag[0] != '-' and tag[0] != '+'):
+            continue
+
+        if tag[0] == '-' and tag[1:] in blacklist[key]:
+            blacklist[key].remove(tag[1:])
+
+        elif tag[0] == '+' and tag[1:] not in blacklist[key]:
+            blacklist[key].append(tag[1:])
+
+    writer = open("blacklist.json", 'w')
+    writer.write(json.dumps(blacklist, indent=4))
+    writer.close()
+
 @client.event
 async def on_message(message):
     # Ignore messages from Radsol
     if message.author == client.user:
         return
 
-    # Default prefix is $
+    # Default prefix is $ and default blacklist is []
     global prefix
+    global blacklist
 
     if (message.guild.id not in prefix.keys()):
         prefix[message.guild.id] = '$'
@@ -116,7 +142,14 @@ async def on_message(message):
         writer.write(json.dumps(prefix, indent=4))
         writer.close()
 
+    if (message.guild.id not in blacklist.keys()):
+        blacklist[message.guild.id] = []
+        writer = open("blacklist.json", 'w')
+        writer.write(json.dumps(blacklist, indent=4))
+        writer.close()
+
     pre = prefix[message.guild.id]
+    blk_list = blacklist[message.guild.id]
 
     # Ignore message if it doesn't start with the prefix
     if (not message.content.startswith(prefix[message.guild.id])):
@@ -132,7 +165,7 @@ async def on_message(message):
 
         strings.pop(0)
 
-        matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|(|)|0-9]", " ".join(strings))
+        matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|\(|\)|0-9|\+]", " ".join(strings))
         for word in matches:
             if len(word) > 0:
                 await message.channel.send("sneaky fucker: [a-zA-Z|\-|_| |:|<|>|0-9]")
@@ -170,6 +203,21 @@ async def on_message(message):
         writer.write(json.dumps(prefix, indent=4))
         writer.close()
         return
+
+    if strings[0] == pre + 'blacklist':
+        strings.pop(0)
+
+        matches = re.split("[a-zA-Z|\-|_| |=|~|*|:|<|>|\(|\)|0-9|\+]", " ".join(strings))
+        for word in matches:
+            if len(word) > 0:
+                await message.channel.send("sneaky fucker")
+                return
+
+        if (len(strings) == 0):
+            await message.channel.send("Current blacklist: " + ", ".join(blk_list))
+            await message.channel.send("To add/remove tags, follow the command with +tag or -tag")
+        else:
+            editBlacklist(strings)
 
 
 client.run(token)
