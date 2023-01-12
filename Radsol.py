@@ -135,21 +135,21 @@ async def on_message(message):
     global blacklist
 
     if not (str(message.guild.id) in prefix):
-        prefix[message.guild.id] = '$'
+        prefix[str(message.guild.id)] = '$'
         writer = open("prefix.json", 'w')
         writer.write(json.dumps(prefix, indent=4))
         writer.close()
 
     if not (str(message.guild.id) in blacklist):
-        blacklist[message.guild.id] = []
+        blacklist[str(message.guild.id)] = []
         writer = open("blacklist.json", 'w')
         writer.write(json.dumps(blacklist, indent=4))
         writer.close()
 
-    pre = prefix[message.guild.id]
+    pre = prefix[str(message.guild.id)]
 
     # Ignore message if it doesn't start with the prefix
-    if (not message.content.startswith(prefix[message.guild.id])):
+    if (not message.content.startswith(prefix[str(message.guild.id)])):
         return
 
     strings = message.content.split()
@@ -188,10 +188,10 @@ async def on_message(message):
         strings.pop(0)
 
         if (len(strings) == 1):
-            prefix[message.guild.id] = strings[0]
+            prefix[str(message.guild.id)] = strings[0]
             await message.channel.send("New prefix: " + prefix)
         elif (len(strings) == 0):
-            prefix[message.guild.id] = ''
+            prefix[str(message.guild.id)] = ''
             await message.channel.send("Removed prefix")
         else:
             return
@@ -211,10 +211,10 @@ async def on_message(message):
                 return
 
         if (len(strings) == 0):
-            await message.channel.send("Current blacklist: " + ", ".join(blacklist[message.guild.id]))
+            await message.channel.send("Current blacklist: " + ", ".join(blacklist[str(message.guild.id)]))
             await message.channel.send("To add/remove tags, follow the command with +tag or -tag")
         else:
-            editBlacklist(strings, message.guild.id)
+            editBlacklist(strings, str(message.guild.id))
 
 
 client.run(token)
