@@ -38,7 +38,8 @@ async def getQuery(query, message):
 
     # Check for range and blacklist tags
     for word in query:
-        if (word in blacklist):
+        if (word in blacklist[str(message.guild.id)]):
+            await message.channel.send("Removed blacklisted tag {}.".format(word))
             query.remove(word)
 
         if (re.search("[a-zA-Z|_| |=|~|*|:|<|>|\(|\)|\+]", word) == None):
@@ -58,7 +59,7 @@ async def getQuery(query, message):
             query.remove(word)
             break
 
-    for black in blacklist:
+    for black in blacklist[str(message.guild.id)]:
         query.append('-' + black)
 
     queryURL = url + ".json?tags=" + "+".join(query)
