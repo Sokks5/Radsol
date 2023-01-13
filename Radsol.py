@@ -222,6 +222,7 @@ async def on_message(message):
         writer.close()
         return
 
+    # edit blacklist
     if strings[0] == pre + 'blacklist':
         strings.pop(0)
 
@@ -236,6 +237,13 @@ async def on_message(message):
             await message.channel.send("To add/remove tags, follow the command with +tag or -tag")
         else:
             editBlacklist(strings, str(message.guild.id))
+
+    # help
+    if strings[0] == pre + 'help' or strings[0] == pre + 'commands':
+        await message.channel.send("possible commands: 'help/commands' 'echo' 'e621/e926' 'blacklist'")
+        await message.channel.send("e621 only works in channels marked as nsfw.")
+        return
+
 
 
 client.run(token)
