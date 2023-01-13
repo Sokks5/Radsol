@@ -65,6 +65,9 @@ async def getQuery(query, message):
                 idx_end = 4
             query.remove(word)
             break
+        else:
+            idx_start = 0
+            idx_end = 4
 
     for black in blacklist[str(message.guild.id)]:
         query.append('-' + black)
@@ -74,7 +77,7 @@ async def getQuery(query, message):
 
     code = response.status_code
     if code != 200:
-        await message.channel.send("e621 [{}]: {}".format(code, response.json()["message"]))
+        await message.channel.send("Status code {}: {}".format(code, response.json()["message"]))
         posts = None
         return None
 
@@ -166,10 +169,17 @@ async def on_message(message):
     strings = message.content.split()
 
     # e621 Command
-    if strings[0] == pre + 'e621':
-        if message.channel.nsfw == False:
+    if strings[0] == pre + 'e621' or strings[0] == pre + 'e926':
+        if (message.channel.nsfw == False) and (strings[0] == pre + 'e621'):
             await message.channel.send("Sorry kiddo, no e621 allowed!")
             return
+
+        # Change url accordingly
+        global url
+        if (strings[0] == pre + 'e621'):
+            url = "https://e621.net/posts"
+        else:
+            url = "https://e926.net/posts"
 
         strings.pop(0)
 
@@ -180,7 +190,7 @@ async def on_message(message):
                 return
 
         if (len(strings) == 0 or strings[0] == 'help'):
-            await message.channel.send("Usage: 'e621 [Tags] [Range]' where [Range] is a single number (n = posts 1 to n) or two numbers separated by a dash (a-b = posts a to b).")
+            await message.channel.send("Usage: {}'e621/e926 [Tags] [Range]' where [Range] is a single number (n = posts 1 to n) or two numbers separated by a dash (a-b = posts a to b).".format(pre))
             return
 
         strings = await getQuery(strings, message)
